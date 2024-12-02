@@ -8,11 +8,11 @@ from toga.style.pack import COLUMN, ROW
 class HelloWorld(toga.App):
     def startup(self):
         # Подключаемся к базе данных SQLite
-        self.conn = sqlite3.connect('database.db')  # создаем/открываем базу данных
+        self.conn = sqlite3.connect('C://Users//Admin//Desktop//pri_beewar//database.db')  # создаем/открываем базу данных  # создаем/открываем базу данных
         self.cursor = self.conn.cursor()  # создаем курсор для выполнения запросов
 
         # Создаем таблицы, если их еще нет
-
+        self.create_tables()
 
         # Остальная часть кода остается без изменений...
         # Создаем основной контейнер
@@ -75,8 +75,12 @@ class HelloWorld(toga.App):
     def create_tables(self):
         # Создаем таблицу logs, если ее еще нет
         self.cursor.execute('''
-CREATE TABLE my_table (id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT);
-
+            CREATE TABLE IF NOT EXISTS logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                input_text TEXT,
+                result TEXT
+            );
         ''')
         self.conn.commit()
 
@@ -85,6 +89,10 @@ CREATE TABLE my_table (id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT);
         timestamp = str(datetime.datetime.now())
         self.cursor.execute("INSERT INTO logs (timestamp, input_text, result) VALUES (?, ?, ?)", (timestamp, input_text, result))
         self.conn.commit()
+        self.cursor.execute('SELECT timestamp, input_text, result FROM logs')
+        results = self.cursor.fetchall()
+        print(results)
+
 
     def button_pressed(self, widget):
         # Добавляем текст кнопки в текстовое поле
@@ -106,7 +114,6 @@ CREATE TABLE my_table (id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT);
                 greeting = 'GOOD job'
             else:
                 greeting = 'idiot'
-
 
             # Логируем запись
             self.log_entry(name, greeting)
